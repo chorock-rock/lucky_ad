@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import FortuneForm from './components/FortuneForm'
 import FortuneResult from './components/FortuneResult'
 import AdPopup from './components/AdPopup'
@@ -8,30 +8,9 @@ function App() {
   const [fortune, setFortune] = useState(null)
   const [userName, setUserName] = useState('')
   const [showAd, setShowAd] = useState(false)
-  const [pendingData, setPendingData] = useState(null)
+  const pendingDataRef = useRef(null)
 
-  const handleSubmit = (name, birthDate) => {
-    // 광고 팝업 먼저 표시
-    setPendingData({ name, birthDate })
-    setShowAd(true)
-  }
-
-  const handleAdClose = useCallback(() => {
-    setShowAd(false)
-    // 광고가 닫힌 후 운세 결과 표시
-    setTimeout(() => {
-      setPendingData((prevData) => {
-        if (prevData) {
-          setUserName(prevData.name)
-          const fortuneData = generateFortune(prevData.birthDate)
-          setFortune(fortuneData)
-        }
-        return null
-      })
-    }, 100)
-  }, [])
-
-  const generateFortune = (birthDate) => {
+  const generateFortune = useCallback((birthDate) => {
     const today = new Date()
     const birth = new Date(birthDate)
     
@@ -83,7 +62,31 @@ function App() {
     
     const fortuneIndex = Math.floor(seed / 20)
     return fortunes[fortuneIndex]
-  }
+  }, [])
+
+  const handleSubmit = useCallback((name, birthDate) => {
+    // 데이터를 ref에 저장하고 광고 팝업 표시
+    pendingDataRef.current = { name, birthDate }
+    // 상태 업데이트를 확실하게 하기 위해 setTimeout 사용
+    setTimeout(() => {
+      setShowAd(true)
+    }, 0)
+  }, [])
+
+  const handleAdClose = useCallback(() => {
+    setShowAd(false)
+    // 광고가 닫힌 후 운세 결과 표시
+    const data = pendingDataRef.current
+    if (data) {
+      setTimeout(() => {
+        setUserName(data.name)
+        const fortuneData = generateFortune(data.birthDate)
+        setFortune(fortuneData)
+        pendingDataRef.current = null
+      }, 100)
+    }
+  }, [generateFortune])
+
 
   return (
     <div className="app">
