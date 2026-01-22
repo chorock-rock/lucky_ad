@@ -67,10 +67,8 @@ function App() {
   const handleSubmit = useCallback((name, birthDate) => {
     // 데이터를 ref에 저장하고 광고 팝업 표시
     pendingDataRef.current = { name, birthDate }
-    // 상태 업데이트를 확실하게 하기 위해 setTimeout 사용
-    setTimeout(() => {
-      setShowAd(true)
-    }, 0)
+    // 상태 업데이트를 직접 실행
+    setShowAd(true)
   }, [])
 
   const handleAdClose = useCallback(() => {

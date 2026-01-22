@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import './AdPopup.css'
 
 function AdPopup({ onClose }) {
@@ -16,7 +17,7 @@ function AdPopup({ onClose }) {
     return () => clearTimeout(timer)
   }, [])
 
-  return (
+  const popupContent = (
     <div className="ad-popup-overlay" onClick={onClose}>
       <div className="ad-popup" onClick={(e) => e.stopPropagation()}>
         <div className="ad-content">
@@ -30,6 +31,8 @@ function AdPopup({ onClose }) {
       </div>
     </div>
   )
+
+  return createPortal(popupContent, document.body)
 }
 
 export default AdPopup
