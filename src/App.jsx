@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import FortuneForm from './components/FortuneForm'
 import FortuneResult from './components/FortuneResult'
 import AdPopup from './components/AdPopup'
@@ -16,16 +16,20 @@ function App() {
     setShowAd(true)
   }
 
-  const handleAdClose = () => {
+  const handleAdClose = useCallback(() => {
     setShowAd(false)
     // 광고가 닫힌 후 운세 결과 표시
-    if (pendingData) {
-      setUserName(pendingData.name)
-      const fortuneData = generateFortune(pendingData.birthDate)
-      setFortune(fortuneData)
-      setPendingData(null)
-    }
-  }
+    setTimeout(() => {
+      setPendingData((prevData) => {
+        if (prevData) {
+          setUserName(prevData.name)
+          const fortuneData = generateFortune(prevData.birthDate)
+          setFortune(fortuneData)
+        }
+        return null
+      })
+    }, 100)
+  }, [])
 
   const generateFortune = (birthDate) => {
     const today = new Date()

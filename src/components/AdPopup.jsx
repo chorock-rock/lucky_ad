@@ -1,23 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import './AdPopup.css'
 
 function AdPopup({ onClose }) {
-  const [countdown, setCountdown] = useState(3)
+  const onCloseRef = useRef(onClose)
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          onClose()
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
+    onCloseRef.current = onClose
   }, [onClose])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onCloseRef.current()
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <div className="ad-popup-overlay" onClick={onClose}>
